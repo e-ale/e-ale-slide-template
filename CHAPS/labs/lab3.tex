@@ -1,0 +1,110 @@
+\section{Lab 3}
+
+\begin{frame}
+   {Userspace Input Driver}
+
+   In Lab3, we will accomplish the following:
+	\begin{itemize}
+		\item
+			Learn about the kernel uinput module and python-uinput
+		\item
+			Create a userspace joystick driver
+		\item
+			Test the joystick driver
+	\end{itemize}
+\end{frame}
+
+\begin{frame}
+   {Preparation}
+
+	Install the python uinput module and evtest:
+
+	\begin{rawscriptsize}
+	# pip3 install python-uinput
+	# apt install evtest
+	\end{rawscriptsize}
+\end{frame}
+
+\begin{frame}
+    {uinput drivers}
+
+	Linux userspace input driver provides methods to:
+\begin{itemize}
+	\item
+		Register input devices with the kernel
+	\item
+		Register types of events the userspace driver may generate (and ranges if applicable. e.g. BTN, KEY, ABS
+	\item
+		Trigger events from userspace
+
+	The uinput driver interface and C APIs are described in detail at \url{https://www.kernel.org/doc/html/v5.0/input/uinput.html}
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+    {Write a uinput joystick driver in Python}
+
+	\textbf{python-uinput} provides easy to use Python support for uinput drivers. The following is a complete joystick driver:
+
+	\begin{rawscriptsize}
+#!/usr/bin/python3
+
+from subprocess import Popen, PIPE, STDOUT
+import uinput
+
+events = (
+        uinput.ABS_X + (0, 4095, 0, 0),
+        )
+
+with uinput.Device(events) as device:
+    cmd = 'iio_attr -c 44e0d000.tscadc:adc voltage0'
+    while (1):
+        p = Popen(cmd, shell=True, stdout=PIPE, close_fds=True)
+        output = p.stdout.read()
+        string = output.decode("utf-8")
+        cols = string.split(' ');
+        value = cols[8][1:-2]
+        device.emit(uinput.ABS_X, int(value))
+	\end{rawscriptsize}
+\end{frame}
+
+\begin{frame}
+    {Test the joystick driver}
+
+	\begin{rawscriptsize}
+		# modprobe uinput
+		# ./joystick.py &
+		# evtest /dev/input/event1
+		Event: time 1538932264.800879, -------------- SYN_REPORT ------------
+		Event: time 1538932264.853011, type 3 (EV_ABS), code 0 (ABS_X), value 1790
+		Event: time 1538932264.853011, -------------- SYN_REPORT ------------
+		Event: time 1538932265.006461, type 3 (EV_ABS), code 0 (ABS_X), value 1795
+		Event: time 1538932265.006461, -------------- SYN_REPORT ------------
+		Event: time 1538932265.058354, type 3 (EV_ABS), code 0 (ABS_X), value 2153
+		Event: time 1538932265.058354, -------------- SYN_REPORT ------------
+		.
+		.
+		.
+	\end{rawscriptsize}
+
+	Try turning the thumbwheel, what are the results?
+\end{frame}
+
+\begin{frame}
+    {Extra credit: play Tetris}
+
+	\begin{itemize}
+	\item
+		Copy \url{https://www.victornils.net/tetris/vitetris-0.57.tar.gz} to the PocketBeagle
+	\item
+		ssh to the PocketBeagle for better performance
+	\end{itemize}
+
+	\begin{rawscriptsize}
+	# tar jxf vitetris-0.57.tar.gz
+	# cd vitetris-0.57
+	# ./configure
+	# make
+	# ./tetris
+	\end{rawscriptsize}
+\end{frame}

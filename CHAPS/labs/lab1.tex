@@ -1,0 +1,49 @@
+\section{Lab 1}
+
+\begin{frame}
+   {IIO sysfs interface}
+
+   In Lab1, we will accomplish the following:
+	\begin{itemize}
+		\item
+			Within sysfs, locate the IIO device corresponding to the thumbwheel's ADC channel
+		\item
+			Read the position of the thumbwheel using a sysfs file
+	\end{itemize}
+\end{frame}
+
+\begin{frame}
+    {Find our ADC IIO device}
+	Confirm that the IIO subsystem has exported a device sysfs:
+	\begin{rawscriptsize}
+root@beaglebone:~# ls /sys/bus/iio/devices/
+iio:device0
+	\end{rawscriptsize}
+
+	Is that our device? Let's check the actual Pocketbeagle/AM335x TSCADC device:
+	\begin{rawscriptsize}
+root@beaglebone:~# ls /sys/bus/platform/devices/44e0d000.tscadc\:adc
+driver           iio:device0  of_node  subsystem
+driver_override  modalias     power    uevent
+	\end{rawscriptsize}
+	Sure enough, there's a link to that same IIO device node.
+\end{frame}
+
+\begin{frame}
+    {Read the ADC channel 0 value}
+
+	Find the file corresponding to ADC channel 0:
+	\begin{rawscriptsize}
+root@beaglebone:~# ls /sys/bus/iio/devices/iio\:device0
+buffer           in_voltage2_raw  in_voltage6_raw  power
+dev              in_voltage3_raw  in_voltage7_raw  scan_elements
+in_voltage0_raw  in_voltage4_raw  name             subsystem
+in_voltage1_raw  in_voltage5_raw  of_node          uevent
+	\end{rawscriptsize}
+	Read the raw ADC channel 0 value:
+	\begin{rawscriptsize}
+root@beaglebone:~# cat /sys/bus/iio/devices/iio\:device0/in_voltage0_raw
+4095
+	\end{rawscriptsize}
+	Try turning the thumbwheel and reading the position again, what are the results?
+\end{frame}

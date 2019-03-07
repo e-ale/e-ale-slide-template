@@ -1,0 +1,111 @@
+\section{Input Subsystem}
+
+\begin{frame}
+   {Overview}
+
+   \begin{itemize}
+      \item
+	      The Linux Input subsystem is a framework to support all types of input devices
+      \item
+	      \url{https://www.kernel.org/doc/html/v5.0/input/input.html}
+      \item
+	      Consists of the core \textbf{input module}, \textbf{device drivers}, and \textbf{event handlers}
+   \end{itemize}
+\end{frame}
+
+\begin{frame}
+	{Device Drivers}
+
+	\begin{itemize}
+		\item
+			\textbf{Device drivers} interface with hardware and provide events to the \textbf{input module}
+		\item
+			Examples are:
+			\begin{itemize}
+				\item
+					\textbf{gpio\_keys}
+				\item
+					\textbf{hid-generic}
+				\item
+					\textbf{usbmouse}
+			\end{itemize}
+	\end{itemize}
+\end{frame}
+
+\begin{frame}
+	{Event Handlers}
+
+	\begin{itemize}
+      \item
+	      \textbf{Event handlers} interface with the \textbf{input module} and pass events to other kernel subsystems or userspace
+	\begin{itemize}
+	\item
+		\textbf{evdev} passes generic input events to userspace.
+		Devices are in \textbf{/dev/input}:
+			\begin{raw}
+crw-r--r--   1 root     root      13,  64 Apr  1 10:49 event0
+crw-r--r--   1 root     root      13,  65 Apr  1 10:50 event1
+crw-r--r--   1 root     root      13,  66 Apr  1 10:50 event2
+crw-r--r--   1 root     root      13,  67 Apr  1 10:50 event3
+			\end{raw}
+	\item
+		\textbf{joydev} passes joystick events to userspace.
+		Devices are in \textbf{/dev/input}:
+			\begin{raw}
+crw-r--r--   1 root     root      13,   0 Apr  1 10:50 js0
+crw-r--r--   1 root     root      13,   1 Apr  1 10:50 js1
+crw-r--r--   1 root     root      13,   2 Apr  1 10:50 js2
+crw-r--r--   1 root     root      13,   3 Apr  1 10:50 js3
+			\end{raw}
+	\end{itemize}
+   \end{itemize}
+
+\end{frame}
+
+
+\begin{frame}
+	{evdev}
+
+	\begin{itemize}
+		\item
+			\textbf{evdev} nodes support blocking/non-blocking \textbf{read} and \textbf{select}
+		\item
+			Reading an \textbf{evdev} node returns a \textbf{struct input\_event}:
+			\begin{raw}
+struct input_event
+{
+	struct timeval time;
+	unsigned short type;
+	unsigned short code;
+	unsigned int value;
+};
+			\end{raw}
+	\end{itemize}
+\end{frame}
+
+\begin{frame}
+	{evtest}
+
+	\begin{itemize}
+		\item \textbf{evtest} can be used to test evdev events at the command line
+		\item Example:
+			\begin{rawscriptsize}
+$ evtest /dev/input/event0
+Input driver version is 1.0.1
+Input device ID: bus 0x3 vendor 0x46d product 0x1028 version 0x111
+Input device name: "Logitech M570"
+Supported events:
+Event type 0 (EV_SYN)
+Event type 1 (EV_KEY)
+Event code 272 (BTN_LEFT)
+...
+Event type 4 (EV_MSC)
+Event code 4 (MSC_SCAN)
+Properties:
+Testing ... (interrupt to exit)
+Event: time 1540159516.312712, type 4 (EV_MSC), code 4 (MSC_SCAN), value 90001
+Event: time 1540159516.312712, type 1 (EV_KEY), code 272 (BTN_LEFT), value 1
+Event: time 1540159516.312712, -------------- SYN_REPORT ------------
+			\end{rawscriptsize}
+	\end{itemize}
+\end{frame}
