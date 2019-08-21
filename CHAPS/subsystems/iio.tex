@@ -79,7 +79,7 @@
 
 	Example graciously provided by Matt Ranostay from his \url{https://elinux.org/images/b/ba/ELC_2017_-_Industrial_IO_and_You-_Nonsense_Hacks!.pdf} presentation.
 
-	\begin{rawscriptsize}
+	\begin{raw}
 $ cd /sys/bus/iio/devices/iio:device0
 $ cat in_temp_raw
 98
@@ -89,14 +89,16 @@ $ cat in_temp_scale
 250
 $ cat in_temp_ambient_scale
 62.500000
-	\end{rawscriptsize}
+	\end{raw}
 \end{frame}
 
 \begin{frame}
     {libiio}
-
+	\begin{itemize}
+		\item
 	\textbf{libiio} is a higher level userspace library for working with IIO devices. The official documentation is at \url{http://analogdevicesinc.github.io/libiio/}. It was created in response to the difficulty of working with the low-level IIO userspace ABI for buffered I/O management.
 
+		\item
 	\textbf{libiio} provides high level APIs to manage
 	\begin{itemize}
 		\item polled sysfs read/write attributes
@@ -104,5 +106,37 @@ $ cat in_temp_ambient_scale
 		\item buffered samples
 	\end{itemize}
 
-	\textbf{libiio} is also used by the \textbf{iiod} server to provide networked access to IIO data and provides several utilities like \textbf{iio\_info} and \textbf{iio\_attr} for retrieving data from IIO.
+		\item
+	\textbf{libiio} is used by the \textbf{iiod} server to provide networked access to IIO data and provides several utilities like \textbf{iio\_info} for retrieving data from IIO.
+		\item
+	\textbf{python-libiio} provides Python bindings for libiio.
+	\end{itemize}
+\end{frame}
+
+\begin{frame}
+   {Kernel consumer API}
+	\begin{itemize}
+		\item
+			Used by other kernel drivers to build functionality on top of an IIO hardware device driver
+		\item
+			\url{https://elixir.bootlin.com/linux/latest/source/include/linux/iio/consumer.h}
+		\item
+			Get an IIO device channel
+\begin{raw}
+struct iio_channel *devm_iio_channel_get(struct device *dev,
+					 const char *consumer_channel);
+\end{raw}
+		\item
+			Get a channel type from a device channel
+			\begin{raw}
+int iio_get_channel_type(struct iio_channel *channel,
+			 enum iio_chan_type *type);
+			\end{raw}
+		\item
+			Read a raw (unprocessed) value from a device channel
+			\begin{raw}
+int iio_read_channel_raw(struct iio_channel *chan,
+			 int *val);
+			\end{raw}
+	\end{itemize}
 \end{frame}

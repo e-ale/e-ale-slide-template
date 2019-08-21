@@ -1,0 +1,45 @@
+\section{Preparation}
+
+\begin{frame}
+	{Install TechLab image}
+	\begin{itemize}
+		\item
+		Download image from
+		\url{https://debian.beagleboard.org/images/techlab-workshop-2019-01-24.img.xz}
+		\item
+		Write image to uSD:
+		\begin{raw}
+$ xzcat techlab-workshop-2019-01-24.img.xz | sudo dd status=progress of=/dev/sdX
+		\end{raw}
+	\end{itemize}
+\end{frame}
+
+\begin{frame}
+	{Install dependencies}
+
+	\begin{itemize}
+		\item
+		Download lab preparation tarball from
+		\url{https://cm.e-ale.org/2019/ELC2019/iioinput/iioinput.tar.bz2}
+
+		\item
+		Copy tarball from host to target
+		\begin{raw}
+$ scp iioinput.tar.bz2 debian@192.168.7.2:~
+		\end{raw}
+		\item
+		Set up passwordless root login:
+		\begin{raw}
+$ sudo tar jxf iioinput.tar.bz2 -C /root
+$ sudo /root/bin/pwless-root.sh
+$ sudo reboot
+		\end{raw}
+		Login as \textbf{root}
+		\item
+		Run dependency install script:
+		\begin{raw}
+root@beaglebone:~# bin/install.sh
+		\end{raw}
+	\end{itemize}
+	\textbf{Note: Passwordless root is optional. One can also execute all lab commands as the default debian user by using sudo}
+\end{frame}

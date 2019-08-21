@@ -109,3 +109,68 @@ Event: time 1540159516.312712, -------------- SYN_REPORT ------------
 			\end{rawscriptsize}
 	\end{itemize}
 \end{frame}
+
+\begin{frame}
+	{jstest}
+
+	\begin{itemize}
+		\item \textbf{jstest} can be used to test joystick events at the command line
+		\item Example:
+			\begin{rawscriptsize}
+# jstest /dev/input/js0
+Driver version is 2.1.0.
+Joystick (python-uinput) has 2 axes (X, Y)
+and 2 buttons (BtnA, BtnB).
+Testing ... (interrupt to exit)
+Axes:  0:  1028  1:  6425 Buttons:  0:off  1:off
+			\end{rawscriptsize}
+	\end{itemize}
+\end{frame}
+
+\begin{frame}
+	{Input device driver API}
+	\begin{itemize}
+		\item
+			Input devices described by \textbf{struct input\_dev}:
+			\begin{rawfootnotesize}
+struct input_dev {
+	const char *name;
+	...
+	unsigned long evbit[BITS_TO_LONGS(EV_CNT)];
+	unsigned long keybit[BITS_TO_LONGS(KEY_CNT)];
+	...
+	int (*event)(struct input_dev *dev, unsigned int type, unsigned int code, int value);
+	...
+};
+			\end{rawfootnotesize}
+		\item
+			A \textbf{struct input\_dev} is allocated using \textbf{devm\_input\_allocate\_device} before event types and codes are configured and handlers are filled in.
+		\item
+			\textbf{input\_register\_device} and \textbf{input\_unregister\_device} are used to register and unregister the device, respectively
+	\end{itemize}
+\end{frame}
+
+\begin{frame}
+	{Input polled device driver API}
+	\begin{itemize}
+		\item
+			Simple devices that can to be polled on a timer basis can be implemented using the simpler \textbf{struct input\_polled\_dev}:
+			\begin{rawfootnotesize}
+struct input_polled_dev {
+	...
+	void (*poll)(struct input_polled_dev *dev);
+	unsigned int poll_interval; /* msec */
+	...
+	struct input_dev *input;
+};
+			\end{rawfootnotesize}
+		\item
+			Allocate a \textbf{struct input\_polled\_dev} with \textbf{devm\_input\_allocate\_polled\_device}
+		\item
+			It is necessary only to fill in the \textbf{poll} handler, \textbf{poll\_interval}, and fill in the \textbf{input} device configuration (\textbf{name, id, evkey, keybit} fields and use \textbf{input\_set\_abs\_params} if absolute events are supported)
+		\item
+			Register the polled device with \textbf{input\_register\_polled\_device}
+		\item
+			In the \textbf{poll} handler, read the hardware and use \textbf{input\_report\_*} to queue events to be reported and \textbf{input\_sync} to flush the queued events
+	\end{itemize}
+\end{frame}

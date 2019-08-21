@@ -1,0 +1,53 @@
+\section{GPIO Subsystem}
+
+\begin{frame}
+   {Overview}
+
+   \begin{itemize}
+      \item
+	      The Linux GPIO subsystem is a framework to support control of General Purpose Input/Output pins
+      \item
+		\url{https://www.kernel.org/doc/Documentation/gpio/gpio.txt}
+      \item
+	      No longer using the legacy GPIO APIs.
+		   \begin{itemize}
+			   \item 
+				   \url{https://www.kernel.org/doc/Documentation/gpio/gpio-legacy.txt}
+		   \end{itemize}
+      \item
+	      Prefer the descriptor-based consumer GPIO APIs.
+		   \begin{itemize}
+			   \item
+				   \url{https://www.kernel.org/doc/Documentation/gpio/consumer.txt}
+		   \end{itemize}
+   \end{itemize}
+\end{frame}
+
+\begin{frame}
+	{Consumer}
+
+	\begin{itemize}
+		\item
+			Get a GPIO descriptor
+			\begin{raw}
+struct gpio_desc *devm_gpiod_get_index(struct device *dev,
+				       const char *con_id,
+			               enum gpiod_flags flags)
+			\end{raw}
+			\begin{itemize}
+		\item
+			\textbf{con\_id} is typically the prefix of a \textbf{Device Tree gpio(s)} property. e.g. a \textbf{power-gpio} property would require \textbf{power} for \textbf{con\_id}
+					\begin{itemize}
+						\item
+							\url{https://www.kernel.org/doc/Documentation/gpio/board.txt}
+					\end{itemize}
+		\item
+			\textbf{flags} are optional and can include direction and/or initial value for a GPIO. e.g. \textbf{GPIOD\_IN} for an input
+			\end{itemize}
+		\item
+			Get a GPIO value (0 for low, nonzero for high)
+			\begin{raw}
+int gpiod_get_value(const struct gpio_desc *desc);
+			\end{raw}
+	\end{itemize}
+\end{frame}

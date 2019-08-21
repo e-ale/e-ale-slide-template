@@ -1,0 +1,161 @@
+\section{Lab 4}
+
+\begin{frame}
+   {Userspace Input Driver}
+
+   In Lab 4, we will accomplish the following:
+	\begin{itemize}
+		\item
+			Learn about the kernel uinput module, python-uinput, python-libiio, and python-periphery
+		\item
+			Create a userspace joystick driver
+		\item
+			Test the joystick driver
+	\end{itemize}
+\end{frame}
+
+\begin{frame}
+    {uinput drivers}
+
+	Linux userspace input driver provides methods to:
+\begin{itemize}
+	\item
+		Register input devices with the kernel
+	\item
+		Register types of events the userspace driver may generate (and ranges if applicable. e.g. BTN, KEY, ABS
+	\item
+		Trigger events from userspace
+
+	The uinput driver interface and C APIs are described in detail at \url{https://www.kernel.org/doc/html/v5.0/input/uinput.html}
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+    {Write a uinput joystick driver in Python}
+
+	\begin{itemize}
+		\item
+	\textbf{python-uinput} provides Python support for uinput drivers.
+		\item
+	\textbf{python-libiio} provides Python support for IIO devices.
+		\item
+	\textbf{python-periphery} provides access to various embedded I/O facilities including GPIO.
+	\end{itemize}
+\end{frame}
+
+\begin{frame}
+	{Python joystick driver}
+	\begin{raw}
+#!/usr/bin/env python3
+
+from periphery import GPIO
+import iio
+import time
+import uinput
+
+events = (
+    uinput.ABS_X + (-255,256, 0, 0),
+    uinput.ABS_Y + (-255,256, 0, 0),
+    uinput.BTN_A,
+    uinput.BTN_B,
+    )
+
+with uinput.Device(events) as device:
+    contexts = iio.scan_contexts()
+    uri = next(iter(contexts), None)
+    ctx = iio.Context(uri)
+	\end{raw}
+\end{frame}
+
+\begin{frame}
+	{Python joystick driver (continued)}
+	\begin{raw}
+    mma8453 = ctx.find_device("mma8453")
+
+    x = mma8453.find_channel("accel_x", False)
+    y = mma8453.find_channel("accel_y", False)
+
+    a = GPIO(45, "in")
+    b = GPIO(117, "in")
+
+    while (1):
+        device.emit(uinput.ABS_X, int(x.attrs["raw"].value))
+        device.emit(uinput.ABS_Y, int(y.attrs["raw"].value))
+        device.emit(uinput.BTN_A, not a.read())
+        device.emit(uinput.BTN_B, not b.read())
+        time.sleep(.1)
+	\end{raw}
+	Start the driver:
+	\begin{raw}
+root@beaglebone:~# ./techjoy.py &
+	\end{raw}
+
+\end{frame}
+
+\begin{frame}
+{Test the joystick driver (evtest)}
+	\begin{rawscriptsize}
+root@beaglebone:~# evtest /dev/input/event1
+Input driver version is 1.0.1
+Input device ID: bus 0x19 vendor 0x0 product 0x0 version 0x0
+Input device name: "ocp:joystick"
+Supported events:
+  Event type 0 (EV_SYN)
+  Event type 1 (EV_KEY)
+    Event code 304 (BTN_SOUTH)
+    Event code 305 (BTN_EAST)
+  Event type 3 (EV_ABS)
+    Event code 0 (ABS_X)
+      Value    -31
+      Min     -255
+      Max      256
+    Event code 1 (ABS_Y)
+      Value     40
+      Min     -255
+      Max      256
+Properties:
+Testing ... (interrupt to exit)
+Event: time 1566259060.295970, type 3 (EV_ABS), code 0 (ABS_X), value -31
+Event: time 1566259060.295970, -------------- SYN_REPORT ------------
+Event: time 1566259060.547851, type 3 (EV_ABS), code 0 (ABS_X), value -29
+Event: time 1566259060.547851, -------------- SYN_REPORT ------------
+Event: time 1566259060.631933, type 3 (EV_ABS), code 0 (ABS_X), value -30
+Event: time 1566259060.631933, type 3 (EV_ABS), code 1 (ABS_Y), value 41
+.
+.
+.
+	\end{rawscriptsize}
+
+	Try moving the board around, what are the results?
+\end{frame}
+
+\begin{frame}
+{Test the joystick driver (jstest)}
+
+	\begin{rawscriptsize}
+root@beaglebone:~# jstest /dev/input/js0 
+Driver version is 2.1.0.
+Joystick (python-uinput) has 2 axes (X, Y)
+and 2 buttons (BtnA, BtnB).
+Testing ... (interrupt to exit)
+Axes:  0:   642  1:  2441 Buttons:  0:off  1:off ^C
+	\end{rawscriptsize}
+
+	Try moving the board around, what are the results?
+\end{frame}
+
+\begin{frame}
+    {Play Tetris}
+
+	\begin{itemize}
+		ssh to the PocketBeagle for better performance
+	\end{itemize}
+
+	\begin{raw}
+root@beaglebone:~# tar jxf $HOME/test/vitetris-0.57.tar.gz
+root@beaglebone:~# cd vitetris-0.57
+root@beaglebone:~# ./configure
+root@beaglebone:~# make
+root@beaglebone:~# ./tetris
+	\end{raw}
+\end{frame}

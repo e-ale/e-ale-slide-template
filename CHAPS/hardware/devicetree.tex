@@ -1,23 +1,168 @@
-\section{Devicetree}
+\section{Device Tree}
 
 \begin{frame}
-	{Devicetree Configuration}
+    {Overview}
 
-	No need to do any pinmuxing since the analog pins are not muxed.
+	A Device Tree defines the hardware configuration for a platform. The following resources provide details on DT.
+\begin{itemize}
+	\item
+		Device Tree Specification
+		\url{https://github.com/devicetree-org/devicetree-specification/releases/download/v0.2/devicetree-specification-v0.2.pdf}
+		Register input devices with the kernel
+	\item
+		Kernel Device Tree Documentation
+		\url{https://www.kernel.org/doc/Documentation/devicetree/}
+	\item
+		Device Tree for Dummies
+		\url{https://elinux.org/images/f/f9/Petazzoni-device-tree-dummies_0.pdf}
+\end{itemize}
+\end{frame}
 
-	It is necessary to enable the AM335x ADC control, however, am335x-pocketbeagle.dts includes am335x-pocketbeagle-common.dtsi which contains:
+\begin{frame}
+	{IIO provider binding}
+
+	Documentation/devicetree/bindings/iio/iio-bindings.txt:
+
+	\begin{raw}
+==IIO providers==
+
+Required properties:
+#io-channel-cells: Number of cells in an IIO specifier; Typically 0 for nodes
+                   with a single IIO output and 1 for nodes with multiple
+                   IIO outputs.
+
+Example for a simple configuration with no trigger:
+
+        adc: voltage-sensor@35 {
+                compatible = "maxim,max1139";
+                reg = <0x35>;
+                #io-channel-cells = <1>;
+        };
+	.
+	.
+	.
+	\end{raw}
+\end{frame}
+
+\begin{frame}
+	{IIO consumer binding}
+
+	Documentation/devicetree/bindings/iio/iio-bindings.txt:
+	\begin{raw}
+==IIO consumers==
+
+Required properties:
+io-channels:    List of phandle and IIO specifier pairs, one pair
+                for each IIO input to the device. Note: if the
+                IIO provider specifies '0' for #io-channel-cells,
+                then only the phandle portion of the pair will appear.
+
+Optional properties:
+io-channel-names:
+                List of IIO input name strings sorted in the same
+                order as the io-channels property. Consumers drivers
+                will use io-channel-names to match IIO input names
+                with IIO specifiers.
+
+For example:
+
+        device {
+                io-channels = <&adc 1>, <&ref 0>;
+                io-channel-names = "vcc", "vdd";
+        };
+	\end{raw}
+\end{frame}
+
+\begin{frame}
+	{MMA8453 binding}
+
+	Documentation/devicetree/bindings/iio/accel/mma8452.txt:
 	\begin{rawscriptsize}
-		&tscadc {
-			status = "okay";
-			adc {
-				ti,adc-channels = <0 1 2 3 4 5 6 7>;
-				ti,chan-step-avg = <0x16 0x16 0x16 0x16 0x16 0x16 0x16 0x16>;
-				ti,chan-step-opendelay = <0x98 0x98 0x98 0x98 0x98 0x98 0x98 0x98>;
-				ti,chan-step-sampledelay = <0x0 0x0 0x0 0x0 0x0 0x0 0x0 0x0>;
-			};
-		};
-	\end{rawscriptsize}
-	\url{https://github.com/beagleboard/linux/blob/4.14/arch/arm/boot/dts/am335x-pocketbeagle-common.dtsi#L1100}
+Freescale MMA8451Q, MMA8452Q, MMA8453Q, MMA8652FC, MMA8653FC or FXLS8471Q
+triaxial accelerometer
 
-	As a result, the platform is configured and enabled by default to use all 8 channels of the ADC at boot.
+Required properties:
+
+  - compatible: should contain one of
+    * "fsl,mma8451"
+    * "fsl,mma8452"
+    * "fsl,mma8453"
+    * "fsl,mma8652"
+    * "fsl,mma8653"
+    * "fsl,fxls8471"
+
+  - reg: the I2C address of the chip
+
+Optional properties:
+
+  - interrupts: interrupt mapping for GPIO IRQ
+
+  - interrupt-names: should contain "INT1" and/or "INT2", the accelerometer's
+                     interrupt line in use.
+
+Example:
+
+        mma8453fc@1d {
+                compatible = "fsl,mma8453";
+                reg = <0x1d>;
+                interrupt-parent = <&gpio1>;
+                interrupts = <5 0>;
+                interrupt-names = "INT2";
+	\end{rawscriptsize}
+\end{frame}
+
+\begin{frame}
+	{Pinctrl client binding}
+
+	Documentation/devicetree/bindings/pinctrl/pinctrl-bindings.txt:
+	\begin{raw}
+Required properties:
+pinctrl-0:      List of phandles, each pointing at a pin configuration
+                node. These referenced pin configuration nodes must be child
+                nodes of the pin controller that they configure.
+.
+.
+.
+Optional properties:
+pinctrl-1:      List of phandles, each pointing at a pin configuration
+                node within a pin controller.
+.
+.
+.
+For example:
+
+        /* For a client device requiring named states */
+        device {
+                pinctrl-names = "active", "idle";
+                pinctrl-0 = <&state_0_node_a>;
+                pinctrl-1 = <&state_1_node_a &state_1_node_b>;
+        };
+	\end{raw}
+\end{frame}
+
+\begin{frame}
+	{GPIO consumer binding}
+
+	Documentation/devicetree/bindings/gpio/gpio.txt:
+	\begin{raw}
+.
+.
+.
+GPIO properties should be named "[<name>-]gpios", with <name> being the purpose
+of this GPIO for the device.
+.
+.
+.
+Example of a node using GPIOs:
+
+        node {
+                enable-gpios = <&qe_pio_e 18 GPIO_ACTIVE_HIGH>;
+        };
+
+GPIO_ACTIVE_HIGH is 0, so in this example gpio-specifier is "18 0" and encodes
+GPIO pin number, and GPIO flags as accepted by the "qe_pio_e" gpio-controller.
+.
+.
+.
+	\end{raw}
 \end{frame}

@@ -9,25 +9,12 @@
 	\begin{itemize}
 		\item
 			Using libiio, discover all devices
-		\item
-			Using libiio, read the current position of the thumbwheel
 	\end{itemize}
 \end{frame}
 
 
 \begin{frame}
-   {Preparation}
-
-	Install a newer version of the \textbf{libiio} and \textbf{libiio-utils} packages from sid:
-
-	\begin{rawscriptsize}
-	$ sudo apt update
-	$ sudo apt install -t sid libiio libiio-utils
-	\end{rawscriptsize}
-\end{frame}
-
-\begin{frame}
-    {Find our ADC IIO devices}
+    {Find our accelerometer device}
 	Example which devices the IIO subsystem has exported:
 	\begin{rawscriptsize}
 root@beaglebone:/# iio_info
@@ -38,51 +25,26 @@ root@beaglebone:/# iio_info
 		Backend description string: Linux beaglebone 4.14.71-ti-r80 #1 SMP PREEMPT Fri Oct 5 23:50:11 UTC 2018 armv7l
 		IIO context has 1 attributes:
 		        local,kernel: 4.14.71-ti-r80
-		IIO context has 1 devices:
-		        iio:device0: 44e0d000.tscadc:adc (buffer capable)
-		                8 channels found:
-		                        voltage0:  (input, index: 0, format: le:u12/16>>0)
-		                        1 channel-specific attributes found:
-	                                	attr  0: raw value: 4095
-		                        voltage1:  (input, index: 1, format: le:u12/16>>0)
-		                        1 channel-specific attributes found:
-		                                attr  0: raw value: 3680
-					voltage2:  (input, index: 2, format: le:u12/16>>0)
-		                        1 channel-specific attributes found:
-		                                attr  0: raw value: 3979
+		IIO context has 2 devices:
 		.
 		.
 		.
-	\end{rawscriptsize}
-	We should be able to identify the ADC channel that represents AIN0
-\end{frame}
-
-\begin{frame}
-    {Read the ADC channel 0 value with libiio}
-
-	Using \textbf{44e0d000.tscadc:adc} and \textbf{voltage0} we can read the position the thumbwheel:
-	Read the raw ADC channel 0 value:
-	\begin{rawscriptsize}
-		root@beaglebone:/# iio_attr -c 44e0d000.tscadc:adc voltage0
-		dev '44e0d000.tscadc:adc', channel 'voltage0' (input), attr 'raw', value '4095'
-	\end{rawscriptsize}
-
-	or for terser output:
-	\begin{rawscriptsize}
-		root@beaglebone:~# iio_attr -c 44e0d000.tscadc:adc voltage0 | cut -d ' ' -f 9
-		'4095'
-	\end{rawscriptsize}
-
-	Try turning the thumbwheel and reading the position again, what are the results?
-\end{frame}
-
-\begin{frame}
-    {Read ADC values continuously}
-
-	\begin{rawscriptsize}
-#!/bin/bash
-while [ 1 ]; do
-	echo `iio_attr -c 44e0d000.tscadc:adc voltage0 | cut -d ' ' -f 9`
-done
+			iio:device1: mma8453 (buffer capable)
+		4 channels found:
+			accel_x:  (input, index: 0, format: be:s10/16>>6)
+			9 channel-specific attributes found:
+				attr  0: calibbias value: 0
+				attr  1: filter_high_pass_3db_frequency value: 0.000000
+				attr  2: filter_high_pass_3db_frequency_available value: 0.250000 0.500000 1.000000 2.000000
+				attr  3: oversampling_ratio value: 4
+				attr  4: oversampling_ratio_available value: 4 32 2
+				attr  5: raw value: -7
+				attr  6: sampling_frequency value: 50.000000
+				attr  7: scale value: 0.038307
+				attr  8: scale_available value: 0.153228 0.076614 0.038307
+			accel_y:  (input, index: 1, format: be:s10/16>>6)
+		.
+		.
+		.
 	\end{rawscriptsize}
 \end{frame}

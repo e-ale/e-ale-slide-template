@@ -7,7 +7,7 @@
 		\item
 			Download the slides for local reference
 		\item
-			\url{https://cm.e-ale.org/2019/SCaLE17x/iio/iioinput-user-SLIDES.pdf}
+			\url{https://cm.e-ale.org/2019/ELC2019/iioinput/iioinput-SLIDES.pdf}
 	\end{itemize}
 \end{frame}
 
@@ -16,18 +16,18 @@
 
 	\begin{itemize}
 		\item
-			Check out that cool thumbwheel on the BaconBits MiniCape.
+			The TechLab Cape has an accelerometer and a couple buttons.
 		\item
-			Let's do something with it!
+			We'll learn how to read the position of the accelerometer axes.
 		\item
-			We'll learn how to read the position of the thumbwheel.
+			We'll also learn how to read the state of the buttons
 		\item
-			With that data, we have the foundation for a userspace single axis joystick driver.
+			With that data, we have the foundation for a joystick driver.
 	\end{itemize}
 
 	     \begin{figure}[H]
-		     \includegraphics[width=3in]{IMAGES/baconbits-annotated}
-				       \caption{BaconBits MiniCape}
+		     \includegraphics[width=3in]{IMAGES/techlab-annotated}
+				       \caption{TechLab Cape}
 	     \end{figure}
 \end{frame}
 
@@ -36,14 +36,14 @@
 	{Exact Steps}
 	\begin{itemize}
 		\item
-			Understand how the thumbwheel is interfaced in hardware
+			Understand how the accelerometer and buttons are interfaced in hardware
 		\item
 			Understand IIO and its purpose in the universe
 		\item
-			Learn how IIO exposes the thumbwheel's ADC to userspace
+			Learn how IIO exposes the accelerometer to the kernel and userspace
 		\item
 			Learn how to use libiio for userspace IIO interaction
 		\item
-			Write a thumbwheel-based userspace joystick driver and test it
+			Write a accelerometer-based joystick driver and test it
 	\end{itemize}
 \end{frame}

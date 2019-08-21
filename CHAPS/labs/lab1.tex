@@ -6,44 +6,52 @@
    In Lab1, we will accomplish the following:
 	\begin{itemize}
 		\item
-			Within sysfs, locate the IIO device corresponding to the thumbwheel's ADC channel
+			Within sysfs, locate the IIO device corresponding to the accelerometer
 		\item
-			Read the position of the thumbwheel using a sysfs file
+			Read the X and Y axes using a sysfs file
 	\end{itemize}
 \end{frame}
 
 \begin{frame}
-    {Find our ADC IIO device}
-	Confirm that the IIO subsystem has exported a device sysfs:
+    {Find the accelerometer IIO device}
+	Confirm that the IIO subsystem has exported devices to sysfs:
 	\begin{rawscriptsize}
 root@beaglebone:~# ls /sys/bus/iio/devices/
-iio:device0
+iio:device0  iio:device1
 	\end{rawscriptsize}
 
-	Is that our device? Let's check the actual Pocketbeagle/AM335x TSCADC device:
+	Which is our device?
 	\begin{rawscriptsize}
-root@beaglebone:~# ls /sys/bus/platform/devices/44e0d000.tscadc\:adc
-driver           iio:device0  of_node  subsystem
-driver_override  modalias     power    uevent
+root@beaglebone:~# ls /sys/bus/iio/devices/iio\:device1
+buffer						   in_accel_y_calibbias
+current_timestamp_clock				   in_accel_y_raw
+dev						   in_accel_z_calibbias
+events						   in_accel_z_raw
+in_accel_filter_high_pass_3db_frequency		   name
+in_accel_filter_high_pass_3db_frequency_available  of_node
+in_accel_oversampling_ratio			   power
+in_accel_oversampling_ratio_available		   sampling_frequency_available
+in_accel_sampling_frequency			   scan_elements
+in_accel_scale					   subsystem
+in_accel_scale_available			   trigger
+in_accel_x_calibbias				   uevent
+in_accel_x_raw
 	\end{rawscriptsize}
-	Sure enough, there's a link to that same IIO device node.
+	That's definitely an accelerometer.
 \end{frame}
 
 \begin{frame}
-    {Read the ADC channel 0 value}
+    {Read the X and Y axes value}
+	Read the raw X axis value:
+	\begin{raw}
+root@beaglebone:~# cat /sys/bus/iio/devices/iio\:device1/in_accel_x_raw
+-10
+	\end{raw}
 
-	Find the file corresponding to ADC channel 0:
-	\begin{rawscriptsize}
-root@beaglebone:~# ls /sys/bus/iio/devices/iio\:device0
-buffer           in_voltage2_raw  in_voltage6_raw  power
-dev              in_voltage3_raw  in_voltage7_raw  scan_elements
-in_voltage0_raw  in_voltage4_raw  name             subsystem
-in_voltage1_raw  in_voltage5_raw  of_node          uevent
-	\end{rawscriptsize}
-	Read the raw ADC channel 0 value:
-	\begin{rawscriptsize}
-root@beaglebone:~# cat /sys/bus/iio/devices/iio\:device0/in_voltage0_raw
-4095
-	\end{rawscriptsize}
-	Try turning the thumbwheel and reading the position again, what are the results?
+	Read the raw Y axis value:
+	\begin{raw}
+root@beaglebone:~# cat /sys/bus/iio/devices/iio\:device1/in_accel_y_raw
+-7
+	\end{raw}
+	Try moving the board and reading the values again, what are the results?
 \end{frame}

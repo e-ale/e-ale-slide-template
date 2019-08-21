@@ -1,0 +1,23 @@
+\section{Devicetree}
+
+\begin{frame}
+	{Devicetree Configuration}
+
+	No need to do any pinmuxing since the analog pins are not muxed.
+
+	It is necessary to enable the AM335x ADC control, however, am335x-pocketbeagle.dts includes am335x-pocketbeagle-common.dtsi which contains:
+	\begin{rawscriptsize}
+		&tscadc {
+			status = "okay";
+			adc {
+				ti,adc-channels = <0 1 2 3 4 5 6 7>;
+				ti,chan-step-avg = <0x16 0x16 0x16 0x16 0x16 0x16 0x16 0x16>;
+				ti,chan-step-opendelay = <0x98 0x98 0x98 0x98 0x98 0x98 0x98 0x98>;
+				ti,chan-step-sampledelay = <0x0 0x0 0x0 0x0 0x0 0x0 0x0 0x0>;
+			};
+		};
+	\end{rawscriptsize}
+	\url{https://github.com/beagleboard/linux/blob/4.14/arch/arm/boot/dts/am335x-pocketbeagle-common.dtsi#L1100}
+
+	As a result, the platform is configured and enabled by default to use all 8 channels of the ADC at boot.
+\end{frame}
