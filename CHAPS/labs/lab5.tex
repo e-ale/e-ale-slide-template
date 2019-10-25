@@ -251,8 +251,8 @@ obj-m := techjoy.o
 \begin{frame}
    {Build and deploy joystick module}
 	\begin{raw}
-root@beaglebone:~# make -C /lib/modules/`uname -r`/build M=$PWD
-root@beaglebone:~# make -C /lib/modules/`uname -r`/build M=$PWD modules_install
+root@beaglebone:~# make -C /lib/modules/$(uname -r)/build M=$PWD
+root@beaglebone:~# make -C /lib/modules/$(uname -r)/build M=$PWD modules_install
 root@beaglebone:~# depmod -a
 root@beaglebone:~# pgrep python | xargs kill
 root@beaglebone:~# modprobe techjoy
